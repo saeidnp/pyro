@@ -9,7 +9,7 @@ from torch.distributions import constraints
 
 from pyro.distributions.conditional import ConditionalTransformModule
 from pyro.distributions.torch_transform import TransformModule
-from pyro.distributions.transforms.utils import clamp_preserve_gradients
+#from pyro.distributions.transforms.utils import clamp_preserve_gradients
 from pyro.distributions.util import copy_docs_from
 from pyro.nn import AutoRegressiveNN, ConditionalAutoRegressiveNN
 
@@ -129,7 +129,7 @@ class AffineAutoregressive(TransformModule):
         the base distribution (or the output of a previous transform)
         """
         mean, log_scale = self.arn(x)
-        log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)
+        #log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)
         self._cached_log_scale = log_scale
         scale = torch.exp(log_scale)
 
@@ -152,13 +152,14 @@ class AffineAutoregressive(TransformModule):
         # NOTE: Inversion is an expensive operation that scales in the dimension of the input
         for idx in perm:
             mean, log_scale = self.arn(torch.stack(x, dim=-1))
-            inverse_scale = torch.exp(-clamp_preserve_gradients(
-                log_scale[..., idx], min=self.log_scale_min_clip, max=self.log_scale_max_clip))
+            # inverse_scale = torch.exp(-clamp_preserve_gradients(
+            #     log_scale[..., idx], min=self.log_scale_min_clip, max=self.log_scale_max_clip))
+            inverse_scale = torch.exp(-log_scale[..., idx])
             mean = mean[..., idx]
             x[idx] = (y[..., idx] - mean) * inverse_scale
 
         x = torch.stack(x, dim=-1)
-        log_scale = clamp_preserve_gradients(log_scale, min=self.log_scale_min_clip, max=self.log_scale_max_clip)
+        #log_scale = clamp_preserve_gradients(log_scale, min=self.log_scale_min_clip, max=self.log_scale_max_clip)
         self._cached_log_scale = log_scale
         return x
 
@@ -176,7 +177,7 @@ class AffineAutoregressive(TransformModule):
             log_scale = self._cached_log_scale
         elif not self.stable:
             _, log_scale = self.arn(x)
-            log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)
+            #log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)
         else:
             _, logit_scale = self.arn(x)
             log_scale = self.logsigmoid(logit_scale + self.sigmoid_bias)
