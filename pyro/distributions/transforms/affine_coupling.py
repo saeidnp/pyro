@@ -7,7 +7,7 @@ from torch.distributions import constraints
 from pyro.distributions.conditional import ConditionalTransformModule
 from pyro.distributions.torch_transform import TransformModule
 from pyro.distributions.util import copy_docs_from
-from pyro.distributions.transforms.utils import clamp_preserve_gradients
+#from pyro.distributions.transforms.utils import clamp_preserve_gradients
 from pyro.nn import ConditionalDenseNN, DenseNN
 
 from functools import partial
@@ -105,7 +105,7 @@ class AffineCoupling(TransformModule):
         x1, x2 = x[..., :self.split_dim], x[..., self.split_dim:]
 
         mean, log_scale = self.nn(x1)
-        log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)
+        #log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)
         self._cached_log_scale = log_scale
 
         y1 = x1
@@ -123,7 +123,7 @@ class AffineCoupling(TransformModule):
         y1, y2 = y[..., :self.split_dim], y[..., self.split_dim:]
         x1 = y1
         mean, log_scale = self.nn(x1)
-        log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)
+        #log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)
         self._cached_log_scale = log_scale
 
         x2 = (y2 - mean) * torch.exp(-log_scale)
@@ -139,7 +139,7 @@ class AffineCoupling(TransformModule):
         else:
             x1 = x[..., :self.split_dim]
             _, log_scale = self.nn(x1)
-            log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)
+            #log_scale = clamp_preserve_gradients(log_scale, self.log_scale_min_clip, self.log_scale_max_clip)
         return log_scale.sum(-1)
 
 
