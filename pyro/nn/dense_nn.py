@@ -64,6 +64,9 @@ class ConditionalDenseNN(torch.nn.Module):
         # Save the nonlinearity
         self.f = nonlinearity
 
+        # Force positive/negative weights in last layer
+        self.ReLU = torch.nn.ReLU()
+
     def forward(self, x, context):
         """
         The forward method
@@ -82,6 +85,7 @@ class ConditionalDenseNN(torch.nn.Module):
         for layer in self.layers[:-1]:
             h = self.f(layer(h))
         h = self.layers[-1](h)
+        h = self.ReLU(h)
 
         # Shape the output, squeezing the parameter dimension if all ones
         if self.output_multiplier == 1:
